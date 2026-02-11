@@ -102,7 +102,15 @@ class GRAPH2VEC(nn.Module):
         fc_in_channel, fc_out_channel = model_configuration['fc']
         self.set_output_layer(nn.Linear(fc_in_channel, fc_out_channel))
 
-        self.load_state_dict(torch.load(model_weight_path))
+        try:
+            if torch.cuda.is_available():
+                state = torch.load(model_weight_path)
+            else:
+                state = torch.load(model_weight_path, map_location=torch.device('cpu'))
+        except RuntimeError as e:
+            # Fallback if CUDA tensors still present and no GPU
+            state = torch.load(model_weight_path, map_location=torch.device('cpu'))
+        self.load_state_dict(state)
         
     def set_graph_conv(self, convs):
         self.layers = []

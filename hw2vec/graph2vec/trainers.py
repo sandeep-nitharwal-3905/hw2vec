@@ -186,7 +186,9 @@ class PairwiseGraphTrainer(BaseTrainer):
         self.metric_calc(test_loss,  test_labels,  test_preds,  header="test ")
 
         if self.min_test_loss >= test_loss:
-            self.model.save_model(str(self.config.model_path_obj/"model.cfg"), str(self.config.model_path_obj/"model.pth"))
+            if self.config.model_path:
+                self.config.model_path.mkdir(parents=True, exist_ok=True)
+                self.model.save_model(str(self.config.model_path/"model.cfg"), str(self.config.model_path/"model.pth"))
 
         # on final evaluate call
         if(epoch_idx==self.config.epochs):
@@ -288,7 +290,9 @@ class GraphTrainer(BaseTrainer):
         self.metric_calc(test_loss,  test_labels,  test_preds,  header="test ")
 
         if self.min_test_loss >= test_loss:
-            self.model.save_model(str(self.config.model_path_obj/"model.cfg"), str(self.config.model_path_obj/"model.pth"))
+            if self.config.model_path:
+                self.config.model_path.mkdir(parents=True, exist_ok=True)
+                self.model.save_model(str(self.config.model_path/"model.cfg"), str(self.config.model_path/"model.pth"))
 
             #TODO: store the attn_weights right here. 
 

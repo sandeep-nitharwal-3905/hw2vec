@@ -1,5 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(sys.path[0]))
+from pathlib import Path
 from hw2vec.config import Config
 from hw2vec.hw2graph import *
 from hw2vec.graph2vec.models import *
@@ -7,7 +8,7 @@ from hw2vec.graph2vec.models import *
 cfg = Config(sys.argv[1:])
 
 ''' prepare graph data '''
-if not cfg.data_pkl_path.exists():
+if not Path(cfg.data_pkl_path).exists():
     ''' converting graph using hw2graph '''
     nx_graphs = []
     hw2graph = HW2GRAPH(cfg)
@@ -44,11 +45,14 @@ valid_loader = DataLoader(test_graphs, shuffle=True, batch_size=1)
 
 ''' model configuration '''
 model = GRAPH2VEC(cfg)
+model_loaded = False
 if cfg.model_path != "":
     model_path = Path(cfg.model_path)
-    if model_path.exists():
+    if model_path.exists() and (model_path/"model.cfg").exists():
         model.load_model(str(model_path/"model.cfg"), str(model_path/"model.pth"))
-else:
+        model_loaded = True
+
+if not model_loaded:
     convs = [
         GRAPH_CONV("gcn", data_proc.num_node_labels, cfg.hidden),
         GRAPH_CONV("gcn", cfg.hidden, cfg.hidden)
@@ -58,7 +62,7 @@ else:
     pool = GRAPH_POOL("sagpool", cfg.hidden, cfg.poolratio)
     model.set_graph_pool(pool)
 
-    readout = GRAPH_READOUT("max")
+    readout = GRAPH_READOUT("mean")
     model.set_graph_readout(readout)
 
     output = nn.Linear(cfg.hidden, cfg.embed_dim)

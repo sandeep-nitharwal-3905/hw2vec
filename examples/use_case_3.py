@@ -1,4 +1,5 @@
 import os, sys, itertools
+from pathlib import Path
 sys.path.append(os.path.dirname(sys.path[0]))
 from hw2vec.config import Config
 from hw2vec.hw2graph import *
@@ -7,7 +8,7 @@ from hw2vec.hw2graph import *
 cfg = Config(sys.argv[1:])
 
 ''' prepare graph data '''
-if not cfg.data_pkl_path.exists():
+if not Path(cfg.data_pkl_path).exists():
     ''' converting graph using hw2graph '''
     nx_graphs = []
     hw2graph = HW2GRAPH(cfg)
